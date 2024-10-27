@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- <link rel="stylesheet" href="https://jqueryvalidation.org/files/demo/site-demos.css"> -->
+    <title>Document</title>
+</head>
+
+<body>
+    <h1>Simple Form</h1>
+    <form id="sheetdb-form">
+
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+        <label id="name-error" class="error" for="name" style="color: red;"></label>
+
+        <br>
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email" required><br><br>
+
+        <button id="btnSubmit">Submit</button>
+        <button id="btnGet">Get</button>
+    </form>
+</body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
+<script src="https://cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
+<script
+    src="https://cdnjs.cloudflare.com/ajax/libs/jQuery.serializeObject/2.0.3/jquery.serializeObject.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.7.7/axios.min.js"></script>
+
+
+<script>
+
+    function getJSON() {
+        // To make the function blocking we manually create a Promise.
+        return new Promise(function (resolve) {
+            axios.get('https://sheetdb.io/api/v1/pub3g6a4so8b2')
+                .then(function (json) {
+                    // The data from the request is available in a .then block
+                    // We return the result using resolve.
+                    resolve(json);
+                });
+        });
+    }
+
+    async function getJSONAsync() {
+        // The await keyword saves us from having to write a .then() block.
+        let json = await axios.get('https://sheetdb.io/api/v1/pub3g6a4so8b2');
+        // The result of the GET request is available in the json variable.
+        // We return it just like in a regular synchronous function.
+        return json;
+    }
+    $(document).on('click', '#btnGet', async function (e) {
+
+        e.preventDefault();
+
+        // C1
+        // await getJSONAsync().then( function(result) {
+        //     // Do something with result.
+        //     console.log('success');
+        // });
+
+        let ttt = await getJSON();
+
+        await getJSON().then(function (result) {
+            // Do something with result.
+            console.log(result);
+        });
+        // console.log(ttt);
+
+        // C2 ---- use axios
+        // let t = await getJSONAsync();
+        // console.log(t);
+
+        // C3 ---- use fetch
+        await GetLastRow();
+    })
+
+    async function GetLastRow() {
+        let response = await fetch('https://script.google.com/macros/s/AKfycbymY6DJsK03kDlI2_biqb4daqc4VIa-CFFD-5UCeR4TweF3LukkLIFS3a-EHwxuRjM9/exec');
+        const zzz = await response.json();
+        console.log(zzz.data);
+    }
+
+    $(document).on('click', '#btnSubmit', function (e) {
+        e.stopImmediatePropagation();
+        e.preventDefault();
+
+        var form = $("#sheetdb-form");
+        form.validate();
+        // $("#name").rules("add", {
+        //     required: true,
+        //     minlength: 2,
+        //     messages: {
+        //         required: "Required input",
+        //         minlength: jQuery.validator.format("Please, at least {0} characters are necessary")
+        //     }
+        // });
+
+
+        alert("Valid: " + form.valid());
+        if (!form.valid()) return;
+
+        let data = $("#sheetdb-form").serializeObject();
+        var form = document.getElementById('sheetdb-form');
+
+        console.log(JSON.stringify(data));
+
+        fetch('https://sheetdb.io/api/v1/pub3g6a4so8b2', {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then((response) => response.json())
+        .then((data) => console.log(data));
+
+    })
+</script>
+
+</html>
